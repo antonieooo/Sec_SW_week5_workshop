@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet"
+        href="https://unpkg.com/@geoapify/leaflet-address-search-plugin@^1/dist/L.Control.GeoapifyAddressSearch.min.css" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body >
+    <h3 style="display:none">E-Manager</h3>
+
+    <div class="main" id="useridentity" style="display:block">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Enter username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter password" required>
+        <br>
+        <span style="display:flex; justify-content:flex-end; width:100%; padding:0;">
+            <input type="button" onclick="login()" value="Next" />
+        </span>
+    </div>
+
+    <div class="main" style="display:none" id="userevents">
+        <span style="display:flex; justify-content:flex-end; width:100%; padding: 3px;">
+            <span id="name_label" style="justify-content: left; width:100%;"></span><button onclick="refresh()"
+                class="buttonToLink">refresh</button>
+        </span>
+
+        <label for="host name">Host Name:</label>
+        <input type="text" id="hostname" name="hostname" placeholder="Enter event host" required>
+        <br>
+        <label for="email">Host Email:</label>
+        <input type="email" id="email" name="email" placeholder="Enter Host Email" required>
+        <br>
+        <label for="event name">Event Name:</label>
+        <input type="text" id="eventname" name="eventname" placeholder="Enter event Name" required>
+        <br>
+        <label for="event date">Date:</label>
+        <input type="datetime-local" id="eventdate" name=eventdate value="2023-06-12T19:30"/>
+        <br>
+        <label for="description">Description:</label>
+        <input type="text" id="eventdesc" name="eventdesc" placeholder="Enter short description of event" required>
+        <br>
+        <label for="event location">Location:</label>
+        <div id="map"></div>
+        <br>
+        <span style="display:flex; justify-content:flex-end; width:100%; padding:0;">
+            <input type="button" onclick="addEvent()" value="add" />
+        </span>
+        
+    </div>
+
+    <div class="row" id="eventsrow" style="align-items: center;">
+
+    </div>
+</body>
+
+<script>
+    calendarEvents = []
+    const api_address = `${document.baseURI}`
+    var token = undefined
+
+    function addEvent() {
+        let eventname = document.getElementById("eventname").value
+        let hostname = document.getElementById("hostname").value
+        let contactemail = document.getElementById("email").value
+        let eventdescription = document.getElementById("eventdesc").value
+        // let eventlocation = {"lat":ws_address.lat, "lon":ws_address.lon, "city":ws_address.city, "country":ws_address.country}
+        let eventlocation = ws_address
+        let eventdate = document.getElementById("eventdate").value
+
+        let eevent = {
+            "EventName": eventname,
+            "HostName": hostname,
+            "ContactEmail": contactemail,
+            "description": eventdescription,
+            "location": eventlocation,
+            "date": eventdate
+        }
+
+        fetch(`${api_address}events`, {
+            method: "POST",
+            body: JSON.stringify(eevent),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                Authorization: `Bearer ${token}`,
+            }
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                console.log(json)
+
+                document.getElementById("eventname").value = ''
+                document.getElementById("hostname").value = ''
+                document.getElementById("email").value = ''
+                document.getElementById("eventdesc").value = ''
+                document.getElementById("eventdate").value = ''
+            });
+
+    }
+
+    function deleteEvent(eventid){
+        fetch(`${api_address}events`, {
+            method: "DELETE",
+            body: JSON.stringify({eventid:eventid}),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                Authorization: `Bearer ${token}`,
+            }
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                console.log(json)
+            });
+
+    }
+
+    function login(){
+        let username = document.getElementById("username").value
+        let password = document.getElementById("password").value
+
+        fetch(`${api_address}login`, {
+            method: "POST",
+            body: JSON.stringify({
+                username:username,
+                password:password
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                if(json.token !== undefined){
+                    document.getElementById("useridentity").style.display = 'none'
+                    document.getElementById("userevents").style.display = 'block'
+                    token = json.token
+
+                    refresh()
+                }
+                else{
+                    console.log(json)
+                }
+            });
+
+    }
+
+    function refresh() {
+        fetch(`${api_address}events`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json; charset=UTF-8",
+                Authorization: `Bearer ${token}`,
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Parse the response data as JSON
+                    return response.json();
+                } else {
+                    throw new Error('API request failed');
+                }
+            })
+            .then(data => {
+                calendarEvents = data
+                // const rows = document.getElementById("eventsrow");
+                // rows.innerHTML = ''
+                var el = document.getElementById('eventsrow');
+                while ( el.firstChild ) el.removeChild( el.firstChild );
+
+                for (let i = 0; i < calendarEvents.length; i++) {
+                    cevent = calendarEvents[i]
+
+                    let status = 'active'
+                    var now = new Date();
+                    if (new Date(cevent.date) < now) {
+                        status = 'expired'
+                    }
+
+                    var column = document.createElement('div');
+                    column.className = 'column';
+
+                    var card = document.createElement('div');
+                    card.className = 'card';
+
+                    let sdiv = `<span style="display:flex; justify-content:flex-end; width:100%; padding: 3px;">
+                                <span style="justify-content: left; width:100%; font-size:0.7em;">${cevent.HostName} (${cevent.ContactEmail})</span>    
+                                <button onclick="deleteEvent('${cevent.eventid}')" class="buttonToLink">delete</button>
+                                </span>
+                                <span style="justify-content: left; width:100%;"><label style="justify-content: left; font-size:0.7em; padding: 3px;"><b>${cevent.EventName}</b></label></span>    
+                                <p class="innercard">${cevent.description}</p>
+                                
+                                <span style="display:flex; justify-content:flex-end; width:100%; padding: 3px;  margin: 10px auto; font-size:0.8em;">
+                                ${cevent.location.city}, ${cevent.location.country}. ${cevent.date}
+                                </span>
+                                <span style="display:flex; justify-content:flex-end; width:100%; padding: 3px;  margin: 10px auto; font-size:0.8em;">
+                                ${status}
+                                </span>`
+                    card.innerHTML = sdiv
+                    column.appendChild(card)
+                    el.appendChild(column)
+                }
+
+                window.scrollTo(0, document.body.scrollHeight);
+
+            })
+            .catch(error => {
+                console.log(error)
+            })
+
+    }
+</script>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@geoapify/leaflet-address-search-plugin@^1/dist/L.Control.GeoapifyAddressSearch.min.js"></script>
+<script src="/js/eeventlocation.js"></script>
+
+
+</html>

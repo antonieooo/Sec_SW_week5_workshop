@@ -1,0 +1,25 @@
+{
+    "name": "ws_events",
+    "version": "1.0.0",
+    "main": "eserver.js",
+    "scripts": {
+        "start": "node eserver.js",
+        "start-ssl": "node eserver-ssl.js",
+        "start-ssl-basic": "node eserver-ssl-basic.js",
+        "start-ssl-basic-v2": "node eserver-ssl-basic_v2.js",
+        "start-ssl-digest": "node eserver-ssl-digest.js",
+        "start-digest-http": "node eserver-digest-http.js",
+        "start-ssl-bearer": "node eserver-ssl-bearer.js",
+        "start-ssl-bearer-2": "node eserver-ssl-bearer_2.js",
+        "start-ssl-bearer-3": "node eserver-ssl-bearer_3.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "ip": "^2.0.1",
+        "jsonwebtoken": "^9.0.2"
+    }
+}
