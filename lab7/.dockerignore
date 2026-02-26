@@ -1,0 +1,6 @@
+node_modules
+nodes-modules
+npm-debug.log
+.git
+.gitignore
+Dockerfile copy

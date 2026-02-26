@@ -9,19 +9,8 @@ get:
             type: array
             items:
               $ref: "../main.yaml#/components/schemas/Book"
-    "406":
-      description: Missing API key header
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              message:
-                type: string
     "401":
-      description: Invalid API key
+      description: Missing or invalid API key
       content:
         application/json:
           schema:

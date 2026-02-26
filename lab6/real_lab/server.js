@@ -20,10 +20,9 @@ function apiKeyMiddleware(req, res, next) {
 
   const key = req.header("X-API-Key");
 
-  // Match Schemathesis "missing required header" expectation for this lab
   if (!key) {
-    return res.status(406).json({
-      error: "NotAcceptable",
+    return res.status(401).json({
+      error: "Unauthorized",
       message: "Missing X-API-Key header"
     });
   }
