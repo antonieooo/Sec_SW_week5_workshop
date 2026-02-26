@@ -1,0 +1,27 @@
+openapi: "3.1.0"
+info:
+  title: HelloBooks API
+  version: "1.2.0"
+
+servers:
+  - url: https://localhost:8000
+
+paths:
+  /status:
+    $ref: "./paths/status.yaml"
+  /books:
+    $ref: "./paths/books.yaml"
+  /books/{id}:
+    $ref: "./paths/bookById.yaml"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      $ref: "./security/apiKey.yaml"
+
+  schemas:
+    Book:
+      $ref: "./schemas/book.yaml"
+
+security:
+  - ApiKeyAuth: []

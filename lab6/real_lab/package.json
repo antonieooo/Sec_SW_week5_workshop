@@ -1,0 +1,13 @@
+{
+  "name": "real_lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OpenAPI lab project",
+  "scripts": {
+    "validate": "npx @redocly/cli lint main.yaml",
+    "bundle": "npx @redocly/cli bundle main.yaml -o dist/openapi.yaml"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

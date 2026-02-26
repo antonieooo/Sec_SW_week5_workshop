@@ -1,0 +1,47 @@
+get:
+  summary: Get a book by ID
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    "200":
+      description: Book details
+      content:
+        application/json:
+          schema:
+            $ref: "../main.yaml#/components/schemas/Book"
+    "406":
+      description: Missing API key header
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+    "401":
+      description: Invalid API key
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+    "404":
+      description: Book not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string

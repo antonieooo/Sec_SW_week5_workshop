@@ -1,0 +1,14 @@
+get:
+  summary: Get a book by ID
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema: { type: string }
+  responses:
+    "200":
+      description: Book details
+      content:
+        application/json:
+          schema:
+            $ref: "../main.yaml#/components/schemas/Book"

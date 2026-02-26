@@ -1,0 +1,14 @@
+get:
+  summary: Public API status endpoint
+  description: Returns basic service information. No authentication required.
+  security: []   # overrides root security → public endpoint
+  responses:
+    "200":
+      description: Service status
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: { type: string }
+              uptime: { type: string }
